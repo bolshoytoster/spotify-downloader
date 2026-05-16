@@ -64,12 +64,13 @@ body:
 
 - type: dropdown
   attributes:
-    label: Deno installation
-    description: How is Deno installed?
+    label: External JavaScript runtime (Deno)
+    description: Is Deno or another external JavaScript runtime installed?
     options:
-      - Via spotdl --download-deno
-      - External source
-      - Not downloaded
+      - Deno via spotdl --download-deno
+      - Deno from an external source
+      - Other external JavaScript runtime
+      - Not installed
       - Other
   validations:
     required: true
