@@ -91,10 +91,6 @@ class Song:
         if raw_track_meta["duration_ms"] == 0 or raw_track_meta["name"].strip() == "":
             raise SongError(f"Track no longer exists: {url}")
 
-        # get artist info
-        primary_artist_id = raw_track_meta["artists"][0]["id"]
-        raw_artist_meta: Dict[str, Any] = spotify_client.artist(primary_artist_id)  # type: ignore
-
         # get album info
         album_id = raw_track_meta["album"]["id"]
         raw_album_meta: Dict[str, Any] = spotify_client.album(album_id)  # type: ignore
@@ -114,7 +110,7 @@ class Song:
                 if raw_album_meta["copyrights"]
                 else None
             ),
-            genres=raw_album_meta.get("genres", []) + raw_artist_meta.get("genres", []),
+            genres=raw_album_meta.get("genres", []) + raw_track_meta["artists"][0]["genres"],
             disc_number=raw_track_meta["disc_number"],
             disc_count=int(raw_album_meta["tracks"]["items"][-1]["disc_number"]),
             duration=int(raw_track_meta["duration_ms"] / 1000),
