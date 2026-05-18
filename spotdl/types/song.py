@@ -192,16 +192,34 @@ class Song:
 
         raw_search_results = Song.search(search_term)
 
-        songs = []
-        for idx, _ in enumerate(raw_search_results.get("tracks", []).get("items", [])):
-            songs.append(
-                Song.from_url(
-                    "http://open.spotify.com/track/"
-                    + raw_search_results["tracks"]["items"][idx]["id"]
-                )
-            )
-
-        return songs
+        return [cls(
+            name=item["name"],
+            artists=[artist["name"] for artist in item["artists"]],
+            artist=item["artists"][0]["name"],
+            artist_id=item["artists"][0]["uri"][15:],
+            album_id=item["album"]["id"],
+            album_name=item["album"]["name"],
+            album_artist=item["album"]["artists"][0]["name"],
+            album_type=item["album"]["album_type"],
+            copyright_text=item["album"]["copyrights"][0]["text"],
+            genres=item["album"]["genres"] + item["artists"][0]["genres"],
+            disc_number=None,
+            disc_count=None,
+            duration=int(item["duration_ms"] / 1000),
+            year=None,
+            date=None,
+            track_number=None,
+            tracks_count=None,
+            isrc=item.get("external_ids", {}).get("isrc"),
+            song_id=item["id"],
+            explicit=item["explicit"],
+            publisher=None,
+            url=item["external_urls"]["spotify"],
+            popularity=None,
+            cover_url=max(item["album"]["images"], key=lambda i: i["width"] * i["height"])[
+                "url"
+            ],
+        ) for item in raw_search_results.get("tracks", []).get("items", [])]
 
     @classmethod
     def from_data_dump(cls, data: str) -> "Song":
