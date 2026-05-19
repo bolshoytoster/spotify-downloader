@@ -4,7 +4,7 @@ Module which contains the web client routes and functions.
 
 import asyncio
 import uuid
-from typing import Any, Optional, cast
+from typing import Any, Dict, Optional, cast
 
 # from datastar_py.sse import DatastarEvent
 from datastar_py.fastapi import ReadSignals
@@ -325,7 +325,7 @@ async def gen_download(signals: Signals):
     try:
         # Fetch song metadata
         raw_album_meta = SpotifyClient().album(signals.album_id)
-        song = None
+        song: Optional[Dict[str, Any]] = None
         for track in raw_album_meta["tracks"]["items"]:
             if track["id"] == signals.song_id:
                 song = track
