@@ -324,7 +324,7 @@ async def gen_download(signals: Signals):
 
     try:
         # Fetch song metadata
-        raw_album_meta: Dict[str, Any] = SpotifyClient().album(signals.album_id)
+        raw_album_meta = SpotifyClient().album(signals.album_id)
         song = None
         for track in raw_album_meta["tracks"]["items"]:
             if track["id"] == signals.song_id:

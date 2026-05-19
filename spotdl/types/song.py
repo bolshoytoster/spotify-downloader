@@ -97,9 +97,9 @@ class Song:
             explicit=raw_track_meta["explicit"],
             publisher=None,
             url=raw_track_meta["external_urls"]["spotify"],
-            cover_url=max(raw_track_meta["album"]["images"], key=lambda i: i["width"] * i["height"])[
-                "url"
-            ],
+            cover_url=max(
+                raw_track_meta["album"]["images"], key=lambda i: i["width"] * i["height"]
+            )["url"],
         )
 
     @classmethod
@@ -198,7 +198,9 @@ class Song:
 
         raw_search_results = Song.search(search_term)
 
-        return [Song.from_raw(item) for item in raw_search_results.get("tracks", []).get("items", [])]
+        return [
+            Song.from_raw(item) for item in raw_search_results.get("tracks", []).get("items", [])
+        ]
 
     @classmethod
     def from_data_dump(cls, data: str) -> "Song":
