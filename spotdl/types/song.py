@@ -83,8 +83,15 @@ class Song:
             album_name=raw_track_meta["album"]["name"],
             album_artist=raw_track_meta["album"]["artists"][0]["name"],
             album_type=raw_track_meta["album"]["album_type"],
-            copyright_text=raw_track_meta["album"]["copyrights"][0]["text"],
-            genres=raw_track_meta["album"]["genres"] + raw_track_meta["artists"][0]["genres"],
+            copyright_text=(
+                raw_track_meta["album"]["copyrights"][0]["text"]
+                if "copyrights" in raw_track_meta["album"]
+                else None
+            ),
+            genres=(
+                raw_track_meta["album"].get("genres", [])
+                    + raw_track_meta["artists"][0].get("genres", []),
+            ),
             disc_number=raw_track_meta.get("disc_number", 1),
             disc_count=1,
             duration=int(raw_track_meta["duration_ms"] / 1000),
