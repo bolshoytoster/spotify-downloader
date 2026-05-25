@@ -335,9 +335,7 @@ async def gen_download(signals: Signals):
             name=raw_track_meta["name"],
             artists=[artist["name"] for artist in raw_track_meta["artists"]],
             artist=raw_track_meta["artists"][0]["name"],
-            artist_id=raw_track_meta["artists"][0]["uri"].removeprefix(
-                "spotify:artist:"
-            ),
+            artist_id=raw_track_meta["artists"][0]["id"],
             album_id=raw_album_meta["id"],
             album_name=raw_album_meta["name"],
             album_artist=raw_album_meta["artists"][0]["name"],
