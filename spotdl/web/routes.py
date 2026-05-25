@@ -4,7 +4,7 @@ Module which contains the web client routes and functions.
 
 import asyncio
 import uuid
-from typing import Any, Dict, Optional, cast
+from typing import Any, Optional, cast
 
 # from datastar_py.sse import DatastarEvent
 from datastar_py.fastapi import ReadSignals
