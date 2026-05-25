@@ -88,10 +88,8 @@ class Song:
                 if "copyrights" in raw_track_meta["album"]
                 else None
             ),
-            genres=(
-                raw_track_meta["album"].get("genres", [])
-                    + raw_track_meta["artists"][0].get("genres", [])
-            ),
+            genres=raw_track_meta["album"].get("genres", [])
+            + raw_track_meta["artists"][0].get("genres", []),
             disc_number=raw_track_meta.get("disc_number", 1),
             disc_count=1,
             duration=int(raw_track_meta["duration_ms"] / 1000),
@@ -105,7 +103,8 @@ class Song:
             publisher="",
             url=raw_track_meta["external_urls"]["spotify"],
             cover_url=max(
-                raw_track_meta["album"]["images"], key=lambda i: i["width"] * i["height"]
+                raw_track_meta["album"]["images"],
+                key=lambda i: i["width"] * i["height"],
             )["url"],
         )
 
@@ -206,7 +205,8 @@ class Song:
         raw_search_results = Song.search(search_term)
 
         return [
-            Song.from_raw(item) for item in raw_search_results.get("tracks", []).get("items", [])
+            Song.from_raw(item)
+            for item in raw_search_results.get("tracks", []).get("items", [])
         ]
 
     @classmethod
