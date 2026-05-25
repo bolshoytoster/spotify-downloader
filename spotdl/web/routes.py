@@ -325,35 +325,33 @@ async def gen_download(signals: Signals):
     try:
         # Fetch song metadata
         raw_album_meta = SpotifyClient().album(signals.album_id)
-        song: Optional[Dict[str, Any]] = None
-        for track in raw_album_meta["tracks"]["items"]:
-            if track["id"] == signals.song_id:
-                song = track
-                break
+        raw_track_meta = next(
+            track for track in raw_album_meta["tracks"]["items"] if track["id"] == signals.song_id
+        )
 
         song = Song(
-            name=song["name"],
-            artists=[artist["name"] for artist in song["artists"]],
-            artist=song["artists"][0]["name"],
-            artist_id=song["artists"][0]["uri"].removeprefix("spotify:artist:"),
+            name=raw_track_meta["name"],
+            artists=[artist["name"] for artist in raw_track_meta["artists"]],
+            artist=raw_track_meta["artists"][0]["name"],
+            artist_id=raw_track_meta["artists"][0]["uri"].removeprefix("spotify:artist:"),
             album_id=raw_album_meta["id"],
             album_name=raw_album_meta["name"],
             album_artist=raw_album_meta["artists"][0]["name"],
             album_type=raw_album_meta["album_type"],
             copyright_text=raw_album_meta["copyrights"][0]["text"],
-            genres=raw_album_meta["genres"] + song["artists"][0].get("genres", []),
-            disc_number=song["disc_number"],
+            genres=raw_album_meta["genres"] + raw_track_meta["artists"][0].get("genres", []),
+            disc_number=raw_track_meta["disc_number"],
             disc_count=int(raw_album_meta["tracks"]["items"][-1]["disc_number"]),
-            duration=int(song["duration_ms"] / 1000),
+            duration=int(raw_track_meta["duration_ms"] / 1000),
             year=int(raw_album_meta["release_date"][:4]),
             date=raw_album_meta["release_date"],
-            track_number=song["track_number"],
+            track_number=raw_track_meta["track_number"],
             tracks_count=raw_album_meta["total_tracks"],
             isrc="",
-            song_id=song["id"],
-            explicit=song["explicit"],
+            song_id=raw_track_meta["id"],
+            explicit=raw_track_meta["explicit"],
             publisher=raw_album_meta.get("label", ""),
-            url=song["external_urls"]["spotify"],
+            url=raw_track_meta["external_urls"]["spotify"],
             popularity=None,
             cover_url=max(raw_album_meta["images"], key=lambda i: i["width"] * i["height"])[
                 "url"

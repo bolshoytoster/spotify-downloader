@@ -90,7 +90,7 @@ class Song:
             ),
             genres=(
                 raw_track_meta["album"].get("genres", [])
-                    + raw_track_meta["artists"][0].get("genres", []),
+                    + raw_track_meta["artists"][0].get("genres", [])
             ),
             disc_number=raw_track_meta.get("disc_number", 1),
             disc_count=1,
