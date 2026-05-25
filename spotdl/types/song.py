@@ -88,7 +88,7 @@ class Song:
             copyright_text=(
                 raw_track_meta["album"]["copyrights"][0]["text"]
                 if "copyrights" in raw_track_meta["album"]
-                else None
+                else ""
             ),
             genres=raw_track_meta["album"].get("genres", [])
             + raw_track_meta["artists"][0].get("genres", []),
