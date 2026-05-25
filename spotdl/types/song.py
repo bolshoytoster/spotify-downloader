@@ -78,7 +78,9 @@ class Song:
             name=raw_track_meta["name"],
             artists=[artist["name"] for artist in raw_track_meta["artists"]],
             artist=raw_track_meta["artists"][0]["name"],
-            artist_id=raw_track_meta["artists"][0]["uri"].removeprefix("spotify:artist:"),
+            artist_id=raw_track_meta["artists"][0]["uri"].removeprefix(
+                "spotify:artist:"
+            ),
             album_id=raw_track_meta["album"]["id"],
             album_name=raw_track_meta["album"]["name"],
             album_artist=raw_track_meta["album"]["artists"][0]["name"],
