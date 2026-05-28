@@ -77,6 +77,10 @@ class MusixMatch(LyricsProvider):
             timeout=10,
             proxies=GlobalConfig.get_parameter("proxies"),
         )
+
+        if search_resp.status_code:
+            raise Exception("Recieved 403 unauthorized")
+
         search_soup = BeautifulSoup(search_resp.text, "html.parser")
         song_url_tag = search_soup.select("a[href^='/lyrics/']")
 
