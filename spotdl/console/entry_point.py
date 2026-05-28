@@ -97,6 +97,7 @@ def entry_point():
 
     # Check if we might be blocked by YouTube Music without stopping downloads.
     if "youtube-music" in downloader_settings["audio_providers"]:
+        logger.info("Checking if you're blocked by YouTube Music")
         if not check_ytmusic_connection():
             logger.warning(
                 "You might be blocked by YouTube Music. "

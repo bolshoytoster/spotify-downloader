@@ -10,22 +10,12 @@ import sys
 import webbrowser
 from pathlib import Path
 
-from fastapi import Depends, FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import Config, Server
 
 from spotdl._version import __version__
 from spotdl.types.options import DownloaderOptions, WebOptions
 from spotdl.utils.config import get_spotdl_path, get_web_ui_path
 from spotdl.utils.logging import NAME_TO_LEVEL
-from spotdl.utils.web import (
-    ALLOWED_ORIGINS,
-    SPAStaticFiles,
-    app_state,
-    fix_mime_types,
-    get_current_state,
-)
-from spotdl.web import api, routes
 
 __all__ = ["web"]
 
@@ -40,6 +30,19 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     - web_settings: Web server settings.
     - downloader_settings: Downloader settings.
     """
+
+    from fastapi import Depends, FastAPI
+    from fastapi.middleware.cors import CORSMiddleware
+
+    from spotdl.utils.web import (
+        ALLOWED_ORIGINS,
+        SPAStaticFiles,
+        app_state,
+        fix_mime_types,
+        get_current_state,
+    )
+    from spotdl.web import api, routes
+
 
     # Apply the fix for mime types
     fix_mime_types()
