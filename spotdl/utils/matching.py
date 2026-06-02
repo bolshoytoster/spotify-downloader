@@ -299,9 +299,13 @@ def calc_main_artist_match(song: Song, result: Result) -> float:
 
     main_artist_match = 0.0
 
-    # Result has no artists, return 0.0
+    # Result has no artists, fall back to author
+    # If no author either, return 0.0
     if not result.artists:
-        return main_artist_match
+        if not result.author:
+            return main_artist_match
+
+        return ratio(slugify(song.artists[0]), slugify(result.author))
 
     song_artists, result_artists = list(map(slugify, song.artists)), list(
         map(slugify, result.artists)
