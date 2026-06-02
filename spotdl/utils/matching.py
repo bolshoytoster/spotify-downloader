@@ -287,14 +287,15 @@ def get_best_matches(
 
 def calc_main_artist_match(song: Song, result: Result) -> float:
     """
-    Check if main artist is present in list of artists
+    Calculate how well the main artist of the song matches the result.
+    Falls back to result.author if result.artists is not populated.
 
     ### Arguments
-    - main_artist: main artist to check
-    - artists: list of artists to check
+    - song: song to match
+    - result: result to match
 
     ### Returns
-    - True if main artist is present in list of artists, False otherwise
+    - artist match percentage (0.0 to 100.0)
     """
 
     main_artist_match = 0.0
