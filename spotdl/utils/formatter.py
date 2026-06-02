@@ -134,6 +134,9 @@ def slugify(string: str) -> str:
     - the slugified string
     """
 
+    if not string:
+        return ""
+
     # Replace ambiguous characters
     if not JAP_REGEX.search(string):
         # If string doesn't have japanese characters
