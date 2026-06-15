@@ -134,7 +134,7 @@ def slugify(string: str) -> str:
     - the slugified string
     """
 
-    if not string:
+    if string == None:
         return ""
 
     # Replace ambiguous characters
