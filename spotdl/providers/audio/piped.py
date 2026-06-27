@@ -24,6 +24,21 @@ HEADERS = {
 API_BASE_URL = "https://api.piped.private.coffee"
 
 
+def _legacy_piped_watch_url_to_youtube(url: str) -> str:
+    parsed_url = urlparse(url)
+    if parsed_url.hostname not in {"piped.video", "www.piped.video"}:
+        return url
+
+    if parsed_url.path != "/watch":
+        return url
+
+    video_ids = parse_qs(parsed_url.query).get("v")
+    if not video_ids:
+        return url
+
+    return f"https://www.youtube.com/watch?v={video_ids[0]}"
+
+
 class Piped(AudioProvider):
     """
     YouTube Music audio provider class
@@ -182,4 +197,6 @@ class Piped(AudioProvider):
             if proxy:
                 self.audio_handler.params["proxy"] = proxy
 
-        return super().get_download_metadata(url, download)
+        return super().get_download_metadata(
+            _legacy_piped_watch_url_to_youtube(url), download
+        )
