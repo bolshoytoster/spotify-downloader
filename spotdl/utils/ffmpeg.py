@@ -289,8 +289,7 @@ def _build_ffmpeg_arguments(
         if (
             (output_format == "opus" and file_format == "webm")
             or (output_format == "m4a" and file_format == "m4a")
-            and not (bitrate or ffmpeg_args)
-        ):
+        ) and not (bitrate or ffmpeg_args):
             arguments.extend(["-vn", "-c:a", "copy"])
         else:
             arguments.extend(FFMPEG_FORMATS[output_format])
