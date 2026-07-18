@@ -24,6 +24,9 @@ class AzLyrics(LyricsProvider):
         super().__init__()
 
         self.session = requests.Session()
+        # No User-Agent override: AZLyrics traps requests claiming to be a
+        # browser in a redirect loop, while requests' default UA is served
+        # normally (see #2682).
         self.session.headers.update(
             {
                 "Host": "www.azlyrics.com",
