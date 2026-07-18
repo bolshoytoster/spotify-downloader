@@ -128,7 +128,7 @@ class ProgressTracker:
         if song.url in self.songs:
             return
         self.songs[song.url] = ClientSongDownload(
-            song=song, progress=0, message="Processing"
+            song=song, progress=0, message="Getting lyrics"
         )
 
     def update(self, song: Song, progress: int, message: str):
