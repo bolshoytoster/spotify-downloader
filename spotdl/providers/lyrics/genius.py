@@ -61,7 +61,9 @@ class Genius(LyricsProvider):
         ).json()
 
         if "response" not in search_response:
-            raise Exception(search_response["meta"]["message"])
+            raise RuntimeError(
+                search_response.get("meta", {}).get("message", "Unknown API error")
+            )
 
         results: Dict[str, str] = {}
         for hit in search_response["response"]["hits"]:
