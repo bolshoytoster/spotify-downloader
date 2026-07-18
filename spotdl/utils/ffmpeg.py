@@ -11,6 +11,7 @@ import shlex
 import shutil
 import stat
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
@@ -250,6 +251,62 @@ def download_ffmpeg() -> Path:
     return ffmpeg_path
 
 
+def _build_ffmpeg_arguments(
+    input_file: Union[Path, Tuple[str, str]],
+    output_file: Path,
+    output_format: str = "mp3",
+    bitrate: Optional[str] = None,
+    ffmpeg_args: Optional[str] = None,
+) -> List[str]:
+    """
+    Build the list of arguments for the ffmpeg command.
+    """
+    arguments: List[str] = [
+        "-nostdin",
+        "-y",
+        "-i",
+        str(input_file.resolve()) if isinstance(input_file, Path) else input_file[0],
+        "-movflags",
+        "+faststart",
+        "-v",
+        "debug",
+        "-progress",
+        "-",
+        "-nostats",
+    ]
+
+    file_format = (
+        str(input_file.suffix).split(".")[1]
+        if isinstance(input_file, Path)
+        else input_file[1]
+    )
+
+    if output_format == "opus" and file_format != "webm":
+        arguments.extend(["-c:a", "libopus"])
+    else:
+        if (
+            (output_format == "opus" and file_format == "webm")
+            or (output_format == "m4a" and file_format == "m4a")
+            and not (bitrate or ffmpeg_args)
+        ):
+            arguments.extend(["-vn", "-c:a", "copy"])
+        else:
+            arguments.extend(FFMPEG_FORMATS[output_format])
+
+    if bitrate:
+        if bitrate.isdigit():
+            arguments.extend(["-q:a", bitrate])
+        else:
+            arguments.extend(["-b:a", bitrate])
+
+    if ffmpeg_args:
+        arguments.extend(shlex.split(ffmpeg_args))
+
+    arguments.append(str(output_file.resolve()))
+
+    return arguments
+
+
 def convert(
     input_file: Union[Path, Tuple[str, str]],
     output_file: Path,
@@ -278,60 +335,9 @@ def convert(
     - Make sure to check if ffmpeg is installed before calling this function.
     """
 
-    # Initialize ffmpeg command
-    # -i is the input file
-    arguments: List[str] = [
-        "-nostdin",
-        "-y",
-        "-i",
-        str(input_file.resolve()) if isinstance(input_file, Path) else input_file[0],
-        "-movflags",
-        "+faststart",
-        "-v",
-        "debug",
-        "-progress",
-        "-",
-        "-nostats",
-    ]
-
-    file_format = (
-        str(input_file.suffix).split(".")[1]
-        if isinstance(input_file, Path)
-        else input_file[1]
+    arguments = _build_ffmpeg_arguments(
+        input_file, output_file, output_format, bitrate, ffmpeg_args
     )
-
-    # Add output format to command
-    # -c:a is used if the file is not an matroska container
-    # and we want to convert to opus
-    # otherwise we use arguments from FFMPEG_FORMATS
-    if output_format == "opus" and file_format != "webm":
-        arguments.extend(["-c:a", "libopus"])
-    else:
-        if (
-            (output_format == "opus" and file_format == "webm")
-            or (output_format == "m4a" and file_format == "m4a")
-            and not (bitrate or ffmpeg_args)
-        ):
-            # Copy the audio stream to the output file
-            arguments.extend(["-vn", "-c:a", "copy"])
-        else:
-            arguments.extend(FFMPEG_FORMATS[output_format])
-
-    # Add bitrate if specified
-    if bitrate:
-        # Check if bitrate is an integer
-        # if it is then use it as variable bitrate
-        if bitrate.isdigit():
-            arguments.extend(["-q:a", bitrate])
-        else:
-            arguments.extend(["-b:a", bitrate])
-
-    # Add other ffmpeg arguments if specified
-    if ffmpeg_args:
-        arguments.extend(shlex.split(ffmpeg_args))
-
-    # Add output file at the end
-    arguments.append(str(output_file.resolve()))
 
     # Run ffmpeg
     with subprocess.Popen(
@@ -437,48 +443,23 @@ async def async_convert(
     - Make sure to check if ffmpeg is installed before calling this function.
     """
 
-    arguments: List[str] = [
-        "-nostdin",
-        "-y",
-        "-i",
-        str(input_file.resolve()) if isinstance(input_file, Path) else input_file[0],
-        "-movflags",
-        "+faststart",
-        "-v",
-        "debug",
-        "-progress",
-        "-",
-        "-nostats",
-    ]
-
-    file_format = (
-        str(input_file.suffix).split(".")[1]
-        if isinstance(input_file, Path)
-        else input_file[1]
+    arguments = _build_ffmpeg_arguments(
+        input_file, output_file, output_format, bitrate, ffmpeg_args
     )
 
-    if output_format == "opus" and file_format != "webm":
-        arguments.extend(["-c:a", "libopus"])
-    else:
-        if (
-            (output_format == "opus" and file_format == "webm")
-            or (output_format == "m4a" and file_format == "m4a")
-            and not (bitrate or ffmpeg_args)
-        ):
-            arguments.extend(["-vn", "-c:a", "copy"])
-        else:
-            arguments.extend(FFMPEG_FORMATS[output_format])
-
-    if bitrate:
-        if bitrate.isdigit():
-            arguments.extend(["-q:a", bitrate])
-        else:
-            arguments.extend(["-b:a", bitrate])
-
-    if ffmpeg_args:
-        arguments.extend(shlex.split(ffmpeg_args))
-
-    arguments.append(str(output_file.resolve()))
+    loop = asyncio.get_running_loop()
+    if sys.platform == "win32" and not isinstance(loop, asyncio.ProactorEventLoop):
+        return await loop.run_in_executor(
+            None,
+            convert,
+            input_file,
+            output_file,
+            ffmpeg,
+            output_format,
+            bitrate,
+            ffmpeg_args,
+            progress_handler,
+        )
 
     process = await asyncio.create_subprocess_exec(
         ffmpeg,
@@ -486,6 +467,7 @@ async def async_convert(
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.STDOUT,
+        limit=2**20,
     )
 
     if not progress_handler:

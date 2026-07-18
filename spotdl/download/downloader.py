@@ -426,6 +426,10 @@ class Downloader:
         """
         Synchronous wrapper for async_search_and_download.
         """
+        if self.loop.is_running():
+            return asyncio.run_coroutine_threadsafe(
+                self.async_search_and_download(song), self.loop
+            ).result()
         return self.loop.run_until_complete(self.async_search_and_download(song))
 
     async def async_search_and_download(  # pylint: disable=R0911
