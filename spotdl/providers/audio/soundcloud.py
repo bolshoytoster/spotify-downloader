@@ -83,7 +83,7 @@ class SoundCloud(AudioProvider):
                     verified=result.user.verified,
                     # SoundCloud reports duration in milliseconds, but the
                     # matcher (and every other provider) works in seconds.
-                    duration=round(result.full_duration / 1000),
+                    duration=result.full_duration / 1000,
                     author=result.user.username,
                     result_id=str(result.id),
                     isrc_search=False,
