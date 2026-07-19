@@ -4,6 +4,7 @@ and checking for ffmpeg binary, and downloading it if not found.
 """
 
 import asyncio
+import functools
 import os
 import platform
 import re
