@@ -89,8 +89,9 @@ class Song:
                 else ""
             ),
             genres=[
-                g for g in raw_track_meta["album"].get("genres", [])
-                    + raw_track_meta["artists"][0].get("genres", [])
+                g
+                for g in raw_track_meta["album"].get("genres", [])
+                + raw_track_meta["artists"][0].get("genres", [])
                 if g
             ],
             disc_number=raw_track_meta.get("disc_number", 1),
@@ -109,7 +110,7 @@ class Song:
             cover_url=(
                 max(
                     raw_track_meta["album"]["images"],
-                    key=lambda i: i["width"] * i["height"]
+                    key=lambda i: i["width"] * i["height"],
                 )["url"]
                 if raw_track_meta["album"]["images"]
                 else None

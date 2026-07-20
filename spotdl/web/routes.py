@@ -22,7 +22,6 @@ from spotdl.types.song import Song
 from spotdl.utils.config import get_spotdl_path
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.search import get_search_results
-from spotdl.utils.spotify import SpotifyClient
 from spotdl.utils.web import Client, app_state, validate_search_term
 from spotdl.web.utils import Signals, handle_signals
 
