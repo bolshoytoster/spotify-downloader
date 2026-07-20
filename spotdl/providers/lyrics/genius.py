@@ -58,10 +58,15 @@ class Genius(LyricsProvider):
             headers=self.headers,
             timeout=10,
             proxies=GlobalConfig.get_parameter("proxies"),
-        )
+        ).json()
+
+        if "response" not in search_response:
+            raise RuntimeError(
+                search_response.get("meta", {}).get("message", "Unknown API error")
+            )
 
         results: Dict[str, str] = {}
-        for hit in search_response.json()["response"]["hits"]:
+        for hit in search_response["response"]["hits"]:
             results[hit["result"]["full_title"]] = hit["result"]["id"]
 
         return results
