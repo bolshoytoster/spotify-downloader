@@ -121,7 +121,7 @@ class Song:
             ),
         )
 
-    def fetch_album_data(self) -> "Song":
+    def fetch_album_data(self):
         """
         Populates album data in this song.
 
