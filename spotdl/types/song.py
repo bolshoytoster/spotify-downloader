@@ -67,6 +67,10 @@ class Song:
         """
         Creates a Song object from raw data.
 
+        This uses placeholder values for disc_count, year, date, tracks_count and publisher, since
+        the track data doesn't contain these.
+        You can fetch this extra data by calling song.with_album_data() after this.
+
         ### Arguments
         - raw_track_meta: The raw data from Spotify's API.
 
@@ -117,6 +121,21 @@ class Song:
             ),
         )
 
+    def fetch_album_data(self) -> "Song":
+        """
+        Populates album data in this song.
+
+        See from_raw's doc comment for context.
+        """
+        # get album info
+        raw_album_meta: Dict[str, Any] = SpotifyClient().album(self.album_id)  # type: ignore
+
+        self.disc_count = int(raw_album_meta["tracks"]["items"][-1]["disc_number"])
+        self.year = int(raw_album_meta["release_date"][:4])
+        self.date = raw_album_meta["release_date"]
+        self.tracks_count = raw_album_meta["total_tracks"]
+        self.publisher = raw_album_meta.get("label", "")
+
     @classmethod
     def from_url(cls, url: str) -> "Song":
         """
@@ -132,11 +151,8 @@ class Song:
         if "open.spotify.com" not in url or "track" not in url:
             raise SongError(f"Invalid URL: {url}")
 
-        # query spotify for song, artist, album details
-        spotify_client = SpotifyClient()
-
         # get track info
-        raw_track_meta = spotify_client.track(url)
+        raw_track_meta = SpotifyClient().track(url)
 
         if raw_track_meta is None:
             raise SongError(
@@ -146,16 +162,9 @@ class Song:
         if raw_track_meta["duration_ms"] == 0 or raw_track_meta["name"].strip() == "":
             raise SongError(f"Track no longer exists: {url}")
 
-        # get album info
-        album_id = raw_track_meta["album"]["id"]
-        raw_album_meta: Dict[str, Any] = spotify_client.album(album_id)  # type: ignore
-
         song = Song.from_raw(raw_track_meta)
-        song.disc_count = int(raw_album_meta["tracks"]["items"][-1]["disc_number"])
-        song.year = int(raw_album_meta["release_date"][:4])
-        song.date = raw_album_meta["release_date"]
-        song.tracks_count = raw_album_meta["total_tracks"]
-        song.publisher = raw_album_meta.get("label", "")
+        song.fetch_album_data()
+
         return song
 
     @staticmethod
