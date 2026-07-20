@@ -496,7 +496,12 @@ async def async_convert(
 
     if process.stdout is not None:
         while True:
-            out_line_bytes = await process.stdout.readline()
+            try:
+                out_line_bytes = await process.stdout.readline()
+            except ValueError:
+                # A single line exceeded the stream limit; readline drops the
+                # buffered data, so skip the line and keep reading
+                continue
             if not out_line_bytes:
                 break
 

@@ -131,7 +131,8 @@ class BandCampTrack:
                     self.tags.append(tag["name"])
 
         self.art_id = result.get("art_id") or 0
-        self.art_url = "https://f4.bcbits.com/img/a" + str(self.art_id) + "_0.jpg"
+        if self.art_id:
+            self.art_url = "https://f4.bcbits.com/img/a" + str(self.art_id) + "_0.jpg"
 
         self.artist_id = result["band"]["band_id"]
         self.artist_title = result["band"]["name"]

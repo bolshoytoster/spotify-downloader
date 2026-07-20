@@ -427,6 +427,18 @@ class Downloader:
         """
         Synchronous wrapper for async_search_and_download.
         """
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            pass
+        else:
+            # Blocking on run_coroutine_threadsafe from the loop's own thread
+            # would deadlock: the coroutine can never run while we block.
+            raise DownloaderError(
+                "search_and_download cannot be called from a running event loop; "
+                "await async_search_and_download instead"
+            )
+
         if self.loop.is_running():
             return asyncio.run_coroutine_threadsafe(
                 self.async_search_and_download(song), self.loop
@@ -448,6 +460,10 @@ class Downloader:
         ### Notes
         - This function is asynchronous.
         """
+
+        # Use the loop this coroutine is actually running on, which may not be
+        # self.loop when called directly as a library API
+        loop = asyncio.get_running_loop()
 
         # Check if song has name/artist and url/song_id
         if not (song.name and (song.artists or song.artist)) and not (
@@ -475,7 +491,7 @@ class Downloader:
             )
         ):
             try:
-                song = await self.loop.run_in_executor(None, reinit_song, song)
+                song = await loop.run_in_executor(None, reinit_song, song)
 
             except Exception as e:
                 logger.error("Error occurred while reinitializing song: %s", e)
@@ -578,7 +594,7 @@ class Downloader:
 
             # Find song lyrics and add them to the song object
             try:
-                lyrics = await self.loop.run_in_executor(None, self.search_lyrics, song)
+                lyrics = await loop.run_in_executor(None, self.search_lyrics, song)
                 if lyrics is None:
                     logger.debug(
                         "No lyrics found for %s, lyrics providers: %s",
@@ -642,7 +658,7 @@ class Downloader:
                     return song, None
 
                 # Update the metadata
-                await self.loop.run_in_executor(
+                await loop.run_in_executor(
                     None,
                     lambda: embed_metadata(
                         output_file=output_file,
@@ -691,14 +707,14 @@ class Downloader:
 
             if song.download_url is None:
                 display_progress_tracker.notify_searching()
-                download_url = await self.loop.run_in_executor(None, self.search, song)
+                download_url = await loop.run_in_executor(None, self.search, song)
             else:
                 download_url = song.download_url
 
             display_progress_tracker.notify_getting_meta()
 
             logger.debug("Downloading %s using %s", song.display_name, download_url)
-            download_info = await self.loop.run_in_executor(
+            download_info = await loop.run_in_executor(
                 None,
                 lambda: audio_downloader.get_download_metadata(
                     download_url, download=True
@@ -727,7 +743,7 @@ class Downloader:
                 self.settings["bitrate"] in ["auto", "disable", None]
                 and temp_file.suffix == output_file.suffix
             ):
-                await self.loop.run_in_executor(
+                await loop.run_in_executor(
                     None, shutil.move, str(temp_file), str(output_file)
                 )
                 success = True
@@ -818,7 +834,7 @@ class Downloader:
                 )
 
                 # Run the post processor to get the sponsor segments
-                _, download_info = await self.loop.run_in_executor(
+                _, download_info = await loop.run_in_executor(
                     None, post_processor.run, download_info
                 )
                 chapters = download_info["sponsorblock_chapters"]
@@ -839,7 +855,7 @@ class Downloader:
 
                     # Run the post processor to remove the sponsor segments
                     # this returns a list of files to delete
-                    files_to_delete, download_info = await self.loop.run_in_executor(
+                    files_to_delete, download_info = await loop.run_in_executor(
                         None, modify_chapters.run, download_info
                     )
 
@@ -848,7 +864,7 @@ class Downloader:
                         Path(file_to_delete).unlink()
 
             try:
-                await self.loop.run_in_executor(
+                await loop.run_in_executor(
                     None,
                     lambda: embed_metadata(
                         output_file,
@@ -863,7 +879,7 @@ class Downloader:
                 ) from exception
 
             if self.settings["generate_lrc"]:
-                await self.loop.run_in_executor(None, generate_lrc, song, output_file)
+                await loop.run_in_executor(None, generate_lrc, song, output_file)
 
             display_progress_tracker.notify_complete()
             display_progress_tracker.set_path(str(output_file))
