@@ -137,11 +137,7 @@ async def handle_get_client_search(datastar_signals: ReadSignals):
             f"[{signals.client_id}] Valid URL detected, redirecting to downloads..."
         )
         yield SSE.redirect("/downloads")
-
-        raw_track_meta = SpotifyClient().track(signals.search_term)
-        signals.song_id = raw_track_meta["id"]
-        signals.album_id = raw_track_meta["album"]["id"]
-
+        signals.song_url = signals.search_term
         async for update in gen_download(signals):
             yield update
 
@@ -309,10 +305,10 @@ async def gen_download(signals: Signals):
         )
         return
     app_state.logger.info(
-        f"[{signals.client_id}] Download requested: {signals.song_id}"
+        f"[{signals.client_id}] Download requested: {signals.song_url}"
     )
     yield SSE.patch_elements(f"""
-            <button id="download-{signals.song_id}" class="btn btn-primary btn-square loading">
+            <button id="download-{signals.song_url}" class="btn btn-primary btn-square loading">
                 </button>
         """)
 
@@ -325,49 +321,13 @@ async def gen_download(signals: Signals):
 
     try:
         # Fetch song metadata
-        raw_album_meta = SpotifyClient().album(signals.album_id)
-        raw_track_meta = next(
-            track
-            for track in raw_album_meta["tracks"]["items"]
-            if track["id"] == signals.song_id
-        )
-
-        song = Song(
-            name=raw_track_meta["name"],
-            artists=[artist["name"] for artist in raw_track_meta["artists"]],
-            artist=raw_track_meta["artists"][0]["name"],
-            artist_id=raw_track_meta["artists"][0]["id"],
-            album_id=raw_album_meta["id"],
-            album_name=raw_album_meta["name"],
-            album_artist=raw_album_meta["artists"][0]["name"],
-            album_type=raw_album_meta["album_type"],
-            copyright_text=raw_album_meta["copyrights"][0]["text"],
-            genres=raw_album_meta["genres"]
-            + raw_track_meta["artists"][0].get("genres", []),
-            disc_number=raw_track_meta["disc_number"],
-            disc_count=int(raw_album_meta["tracks"]["items"][-1]["disc_number"]),
-            duration=int(raw_track_meta["duration_ms"] / 1000),
-            year=int(raw_album_meta["release_date"][:4]),
-            date=raw_album_meta["release_date"],
-            track_number=raw_track_meta["track_number"],
-            tracks_count=raw_album_meta["total_tracks"],
-            isrc="",
-            song_id=raw_track_meta["id"],
-            explicit=raw_track_meta["explicit"],
-            publisher=raw_album_meta.get("label", ""),
-            url=raw_track_meta["external_urls"]["spotify"],
-            popularity=None,
-            cover_url=max(
-                raw_album_meta["images"], key=lambda i: i["width"] * i["height"]
-            )["url"],
-        )
-
+        song = Song.from_url(signals.song_url)
         app_state.logger.info(f"Downloading song: {song}")
 
         # Download Song
         _, path = await client.downloader.pool_download(song)
         yield SSE.patch_elements(f"""
-            <button id="download-{signals.song_id}" class="btn btn-primary btn-square">
+            <button id="download-{signals.song_url}" class="btn btn-primary btn-square">
                     <iconify-icon icon="clarity:check-line" style="font-size: 24px"></iconify-icon>
                 </button>
         """)
