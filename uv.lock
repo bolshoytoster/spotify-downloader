@@ -2541,22 +2541,22 @@ wheels = [
 
 [[package]]
 name = "spotapi"
-version = "1.2.7"
+version = "1.2.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beautifulsoup4", marker = "platform_python_implementation == 'CPython'" },
     { name = "colorama", marker = "platform_python_implementation == 'CPython'" },
+    { name = "curl-cffi", marker = "platform_python_implementation == 'CPython'" },
     { name = "pillow", marker = "platform_python_implementation == 'CPython'" },
     { name = "pyotp", marker = "platform_python_implementation == 'CPython'" },
     { name = "readerwriterlock", marker = "platform_python_implementation == 'CPython'" },
     { name = "requests", marker = "platform_python_implementation == 'CPython'" },
-    { name = "tls-client", marker = "platform_python_implementation == 'CPython'" },
     { name = "typing-extensions", marker = "platform_python_implementation == 'CPython'" },
     { name = "validators", marker = "platform_python_implementation == 'CPython'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2d/cb/7fddf710e4eaba6b27dfba8b951dca2fe160a6495139819e4b402f8a4c85/spotapi-1.2.7.tar.gz", hash = "sha256:c78500eb903852fc6a943379ba91ec3cf6b9caff20299c3792a2e8bbfd7156d6", size = 54755, upload-time = "2025-12-14T15:43:49.156Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d5/b6/fe67cb2df5545999ae006f7664de00f55af9ebff65783bf8abd727a0ff90/spotapi-1.2.8.tar.gz", hash = "sha256:8535c820522e05e6959742e9e636d52a3c151b37130460ff47a46cae283577a1", size = 58540, upload-time = "2026-06-14T09:24:41.99Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f6/e9/758080fa98dd27e872fa9811980f9b2f6563a3c4e55c2b70200314fef047/spotapi-1.2.7-py3-none-any.whl", hash = "sha256:9b8b11b1d4fd34473b2124ed1c03bc8ae55b86faba762d892031d3afd159a4f6", size = 66820, upload-time = "2025-12-14T15:43:47.994Z" },
+    { url = "https://files.pythonhosted.org/packages/3e/ff/0491c208050d5aaab26ede9df11e4e8ff2e1cc0cf0421c8e18deff37c974/spotapi-1.2.8-py3-none-any.whl", hash = "sha256:dc5716b215ef207b97249a70347965981c30102899dbe727b1b5f1e643ba179e", size = 70325, upload-time = "2026-06-14T09:24:40.991Z" },
 ]
 
 [[package]]
@@ -2746,15 +2746,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/ab/e2/e9a00f0ccb71718418230718b3d900e71a5d16e701a3dae079a21e9cd8f8/text-unidecode-1.3.tar.gz", hash = "sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93", size = 76885, upload-time = "2019-08-30T21:36:45.405Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a6/a5/c0b6468d3824fe3fde30dbb5e1f687b291608f9473681bbf7dabbf5a87d7/text_unidecode-1.3-py2.py3-none-any.whl", hash = "sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8", size = 78154, upload-time = "2019-08-30T21:37:03.543Z" },
-]
-
-[[package]]
-name = "tls-client"
-version = "1.0.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/3c/a6/6ec27c66a836a11a085e841f825d2f5bd289092f3bcd2f645558f587c89f/tls_client-1.0.1.tar.gz", hash = "sha256:dad797f3412bb713606e0765d489f547ffb580c5ffdb74aed47a183ce8505ff5", size = 16414, upload-time = "2024-02-02T18:55:55.767Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/75/cd/5c735818692927e07980357445569adb6ee204c3332d19c516bae01c6cfa/tls_client-1.0.1-py3-none-any.whl", hash = "sha256:2f8915c0642c2226c9e33120072a2af082812f6310d32f4ea4da322db7d3bb1c", size = 41287556, upload-time = "2024-02-02T18:55:52.226Z" },
 ]
 
 [[package]]
