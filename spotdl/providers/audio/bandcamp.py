@@ -100,7 +100,7 @@ class BandCampTrack:
                 rjson = resp.json()
                 lyrics = rjson["lyrics"]
                 if isinstance(lyrics, Mapping):
-                    self.lyrics = lyrics.get(str(self.track_id), "")
+                    self.lyrics = lyrics.get(str(self.track_id)) or ""
             except (requests.RequestException, JSONDecodeError, KeyError, TypeError):
                 self.lyrics = ""
 
@@ -120,7 +120,7 @@ class BandCampTrack:
                 if isinstance(tag, Mapping) and "name" in tag:
                     self.tags.append(tag["name"])
 
-        self.art_id = result.get("art_id", 0)
+        self.art_id = result.get("art_id") or 0
         self.art_url = "https://f4.bcbits.com/img/a" + str(self.art_id) + "_0.jpg"
 
         self.artist_id = result["band"]["band_id"]
@@ -129,13 +129,13 @@ class BandCampTrack:
         self.album_id = result["album_id"]
         self.album_title = result["album_title"]
 
-        self.label_id = result.get("label_id", 0)
-        self.label_title = result.get("label", "")
+        self.label_id = result.get("label_id") or 0
+        self.label_title = result.get("label") or ""
 
-        self.about = result.get("about", "")
-        self.credits = result.get("credits", "")
+        self.about = result.get("about") or ""
+        self.credits = result.get("credits") or ""
 
-        self.date_released_unix = result.get("release_date", 0)
+        self.date_released_unix = result.get("release_date") or 0
 
         self.track_url = result["bandcamp_url"]
 
